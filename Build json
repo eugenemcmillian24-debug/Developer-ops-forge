@@ -1,0 +1,305 @@
+{
+  "name": "ai-dev-environment",
+  "version": "1.1.0",
+  "description": "Unlimited, full-stack, AI-powered development environment (Next.js + WebContainers + Vercel + LangGraph) — Eugene McMillian Production Edition",
+  "author": "Eugene McMillian",
+  "owner": {
+    "name": "Eugene McMillian",
+    "location": "Yonkers, NY",
+    "expertise": ["Web3 dApps", "Solana/Base/Farcaster", "AI agent platforms", "Monetization systems"]
+  },
+  "stack": {
+    "frontend": "Next.js 15 + Tailwind CSS + TypeScript + ShadCN UI + Monaco Editor",
+    "backend": {
+      "framework": "Next.js API routes (Edge functions)",
+      "database": "Neon + Drizzle ORM (branching isolation)",
+      "auth": "NextAuth.js (GitHub/Google/JWT)",
+      "payments": "Stripe (test mode)",
+      "storage": "Vercel Blob (5GB free) | Supabase Storage (500MB free)",
+      "realtime": "Supabase Realtime (200 concurrent)",
+      "queues": "Upstash Redis (free tier)"
+    },
+    "mobile": {
+      "primary": "Expo + React Native (snack.expo.dev export)",
+      "fallback": "Capacitor hybrid (web → native)",
+      "sync": "API + auth tokens"
+    },
+    "ai": {
+      "providers": ["Groq (fast)", "OpenRouter (30+ free models)"],
+      "orchestration": "LangGraph.js (multi-agent graphs)",
+      "structured_outputs": "Zod schemas"
+    },
+    "sandbox": "@webcontainer/api (full Node.js + npm)",
+    "deployment": "Vercel (unlimited hobby) + GitHub API"
+  },
+  "dependencies": {
+    "core": [
+      "@ai-sdk/groq@latest",
+      "@ai-sdk/openai@latest",
+      "@monaco-editor/react@latest",
+      "@webcontainer/api@latest",
+      "@codesandbox/sandpack-react@latest",
+      "langgraph@latest",
+      "@langchain/core@latest",
+      "@octokit/rest@latest",
+      "drizzle-orm@latest",
+      "@neondatabase/serverless@latest",
+      "lucide-react@latest",
+      "class-variance-authority@latest",
+      "tailwind-merge@latest"
+    ],
+    "backend": [
+      "@supabase/supabase-js@latest",
+      "next-auth@latest",
+      "stripe@latest",
+      "drizzle-kit@latest",
+      "zod@latest",
+      "@upstash/redis@latest"
+    ],
+    "dev": ["@types/node", "typescript", "eslint"]
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio",
+    "deploy": "node scripts/deploy.js",
+    "preview": "node scripts/webcontainer-preview.js"
+  },
+  "env": {
+    "required": {
+      "GROQ_API_KEY": "gr_XXXXXXXXXXXXXXXX",
+      "OPENROUTER_API_KEY": "sk-or-XXXXXXXXXXXXXXXX",
+      "GITHUB_TOKEN": "ghp_XXXXXXXXXXXXXXXX (repo+workflow)",
+      "VERCEL_TOKEN": "vlt_XXXXXXXXXXXXXXXX",
+      "NEON_DATABASE_URL": "postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/db"
+    },
+    "optional": {
+      "SUPABASE_URL": "https://your-project.supabase.co",
+      "SUPABASE_ANON_KEY": "eyJhb...",
+      "NEXTAUTH_SECRET": "openssl rand -base64 32",
+      "NEXTAUTH_URL": "https://your-vercel.app",
+      "STRIPE_SECRET_KEY": "sk_test_...",
+      "STRIPE_WEBHOOK_SECRET": "whsec_...",
+      "REDIS_REST_URL": "https://your-redis.upstash.io",
+      "REDIS_REST_TOKEN": "upstash-XXXXXXXXXXXXXXXX"
+    }
+  },
+  "ai": {
+    "providers": {
+      "groq": {
+        "fast": ["llama-3.1-8b-instant"],
+        "versatile": ["llama-3.1-70b-versatile", "deepseek-r1-distill-llama-70b"],
+        "voice": ["distil-whisper-large-v3-en"]
+      },
+      "openrouter": {
+        "coder": ["qwen/qwen3-coder", "deepseek/deepseek-r1-0528"],
+        "critic": ["mistral-small-3.2"],
+        "planner": ["gemma-3-27b-it"],
+        "deploy": ["solar-pro-3", "trinity-large-preview"],
+        "vision": ["molmo-2-8b"]
+      }
+    },
+    "agents": {
+      "router": {
+        "model": "llama-3.1-8b-instant",
+        "role": "select optimal model chain"
+      },
+      "planner": {
+        "model": "qwen/qwen3-coder",
+        "role": "break prompt into tasks"
+      },
+      "dbDesigner": {
+        "model": "gemma-3-27b-it",
+        "role": "generate Drizzle schemas"
+      },
+      "apiCoder": {
+        "model": "deepseek-r1-0528",
+        "role": "build secure API routes + auth"
+      },
+      "coder": {
+        "model": "llama-3.1-70b-versatile",
+        "role": "generate frontend + fullstack"
+      },
+      "critic": {
+        "model": "mistral-small-3.2",
+        "role": "security + optimization review"
+      },
+      "deployer": {
+        "model": "solar-pro-3",
+        "role": "GitHub + Vercel deployment"
+      }
+    },
+    "fallback_chain": ["8B → 70B → OpenRouter premium"],
+    "voice_input": true
+  },
+  "orchestration": {
+    "graph": {
+      "name": "codecraft-graph",
+      "nodes": ["router", "planner", "dbDesigner", "apiCoder", "coder", "critic", "deployer"],
+      "edges": [
+        ["router", "planner"],
+        ["planner", "dbDesigner"],
+        ["dbDesigner", "apiCoder"],
+        ["apiCoder", "coder"],
+        ["coder", "critic"],
+        ["critic", "deployer"],
+        ["deployer", "__end__"]
+      ],
+      "memory": "conversation + checkpointing",
+      "structured_output": {
+        "files": {
+          "type": "array",
+          "items": {
+            "path": "string",
+            "content": "string",
+            "language": "typescript|tsx|json|sql"
+          }
+        }
+      }
+    }
+  },
+  "features": {
+    "core": {
+      "ai_terminal": {
+        "path": "/ai-terminal",
+        "components": ["model-selector", "chat-streaming", "voice-input", "file-tree"]
+      },
+      "live_preview": {
+        "engine": "WebContainer (Node.js + npm)",
+        "hot_reload": true,
+        "terminal_output": true,
+        "preview_iframe": "localhost:3000",
+        "fallback": "Sandpack"
+      },
+      "projects": {
+        "path": "/projects",
+        "features": ["save/load", "fork", "gallery", "export-zip"]
+      }
+    },
+    "fullstack": {
+      "api_routes": ["/api/auth/[...nextauth]", "/api/projects", "/api/deploy"],
+      "db_schema": ["users", "projects", "files", "usage"],
+      "auth_providers": ["github", "google", "credentials"],
+      "payments": "Stripe checkout + webhooks"
+    },
+    "deploy_pipeline": {
+      "steps": [
+        "create-github-repo",
+        "initial-commit",
+        "create-vercel-project",
+        "trigger-deploy",
+        "return-live-url"
+      ],
+      "time_estimate": "3 seconds"
+    },
+    "mobile": {
+      "expo_export": "snack.expo.dev URL + QR",
+      "capacitor": "web → native hybrid",
+      "offline_sync": "Supabase edge functions"
+    }
+  },
+  "monetization": {
+    "models": ["platform-fees", "affiliate", "white-label"],
+    "revenue_streams": [
+      "1.5-3% trading fees (future DEX integration)",
+      "Creator revenue splits",
+      "Premium model access",
+      "Enterprise deployments"
+    ],
+    "stripe_products": ["starter", "pro", "enterprise"]
+  },
+  "structure": {
+    "app": {
+      "pages": ["ai-terminal/page.tsx", "projects/page.tsx", "dashboard/page.tsx"],
+      "api": ["auth/[...nextauth]/route.ts", "ai/chat/route.ts", "deploy/route.ts"]
+    },
+    "components": {
+      "ui": ["monaco-editor.tsx", "webcontainer-preview.tsx", "agent-status.tsx"],
+      "shadcn": ["button", "dropdown-menu", "input", "textarea"]
+    },
+    "lib": [
+      "ai.ts",
+      "codecraft-graph.ts",
+      "db.ts",
+      "auth.ts",
+      "deploy.ts",
+      "webcontainer.ts"
+    ],
+    "scripts": ["deploy.js", "webcontainer-preview.js"],
+    "types": ["index.ts", "ai.ts", "project.ts"]
+  },
+  "security": {
+    "api_keys": "server-only (Vercel Edge)",
+    "sandbox": "WebContainer Web Workers (isolated)",
+    "tokens": "scoped (repo+workflow+read:user)",
+    "validation": "Zod schemas everywhere",
+    "rate_limit": "Vercel built-in + custom",
+    "cors": "strict origins",
+    "csrf": "NextAuth protection"
+  },
+  "databases": {
+    "neon": {
+      "schema": "public",
+      "tables": [
+        "users (id, email, github_id, created_at)",
+        "projects (id, user_id, name, files_jsonb, vercel_url, created_at)",
+        "usage (user_id, ai_tokens_used, projects_count, period_start)"
+      ]
+    }
+  },
+  "extensions": {
+    "web3": {
+      "solana": "@solana/web3.js (future memecoin launcher)",
+      "base": "ethers.js (future token deployer)",
+      "farcaster": "neynar/nodejs-sdk (future mini-apps)"
+    },
+    "realtime": "Supabase Realtime + PostgreSQL LISTEN/NOTIFY",
+    "storage": "Vercel Blob (images/videos) + Supabase (files)",
+    "analytics": "Vercel Analytics (free)",
+    "testing": "Vitest + Playwright (auto-generated by critic agent)"
+  },
+  "production": {
+    "deploy_command": "vercel --prod",
+    "domain": "https://your-ai-dev.vercel.app",
+    "billing": "100% free tier",
+    "limits": {
+      "vercel": "100 GB-hours/month",
+      "neon": "0.5 GiB storage",
+      "supabase": "500MB DB + 200 concurrent",
+      "webcontainer": "browser memory limits"
+    },
+    "monitoring": "Vercel dashboard + Sentry (free)"
+  },
+  "cto_new_prompt": {
+    "mode": "full_build",
+    "summary": "Production AI Dev Environment: Next.js 15 fullstack platform with WebContainer live preview, LangGraph multi-agent code generation, Vercel/GitHub one-click deploy, Neon DB, Stripe payments — all free tier.",
+    "instructions": [
+      "Build from build.json structure exactly",
+      "Wire LangGraph agents with streaming UI",
+      "Implement WebContainer Next.js preview",
+      "Add Vercel/GitHub deploy pipeline",
+      "Include Drizzle + Neon schema generation",
+      "Production security (no exposed keys)",
+      "Mobile export (Expo + Capacitor)",
+      "Ship with TypeScript strict + ESLint"
+    ]
+  },
+  "ready_state": {
+    "status": "production_deployable",
+    "deploy_time": "15 minutes",
+    "test_command": "npm run dev → localhost:3000/ai-terminal",
+    "success_metric": "Prompt → live Vercel URL in <60s"
+  },
+  "web3_integration": {
+    "future": [
+      "Solana memecoin launcher (from AI terminal)",
+      "Base token deployer",
+      "Farcaster frames + mini-apps",
+      "DEX dashboards + affiliate links"
+    ]
+  }
+}
